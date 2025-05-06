@@ -18,7 +18,7 @@ from rdeditor import molEditWidget
 
 
 from rdkit.Chem import AllChem as Chem
-from . import PKGDIR
+from metis import PKGDIR
 import os
 from sys import platform
 
