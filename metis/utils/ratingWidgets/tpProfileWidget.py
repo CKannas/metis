@@ -37,8 +37,14 @@ class TPProfile(QtWidgets.QWidget):
         "update displayed properties when molecule is changed"
         stringToDisplay = ["<html><table>"]
         for i in propertyDict:
-            stringToDisplay += f"<tr><td>{i}:</td> <td align='right'>{(propertyDict[i]*100):.2f}%</td> </tr>"
-        stringToDisplay += "</table></html>"
+            value = propertyDict[i]
+            if isinstance(value, (int, float, complex)):
+                stringToDisplay.append(f"<tr><td>{i}:</td> <td align='right'>{(value*100):.2f}%</td> </tr>")
+            elif isinstance(value, str):
+                stringToDisplay.append(f"<tr><td>{i}:</td> <td align='right'>{value}</td> </tr>")
+            else:
+                stringToDisplay.append(f"<tr><td>{i}:</td> <td align='right'>{str(value)}</td> </tr>")
+        stringToDisplay.append("</table></html>")
         self.displayTPP.setText("".join(stringToDisplay))
 
 
