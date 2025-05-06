@@ -193,7 +193,7 @@ class Metis(QtWidgets.QMainWindow):
             self.backend.clear_temp_images()
             self.backend.save_substructure_dict()
             self.backend.save_final_dataset()
-            exit(0)
+            sys.exit(0)
 
     def changeTab(self):
         self.saveEvaluations()
