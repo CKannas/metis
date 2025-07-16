@@ -44,11 +44,16 @@ class TPProfile(QtWidgets.QWidget):
         for prop in propertyDict:
             value = propertyDict[prop]
             if isinstance(value, (int, float, complex)):
-                stringToDisplay.append(f"<tr><td>{prop}:</td> <td align='right'>{(value*100):.2f}%</td> </tr>")
+                if "yield" in prop.lower():
+                    stringToDisplay.append(f"<tr><td><b>{prop}</b>:</td> <td align='right'>{value:.2f}%</td> </tr>")
+                elif "deviation" in prop.lower():
+                    stringToDisplay.append(f"<tr><td><b>{prop}</b>:</td> <td align='right'>{value:.2f}</td> </tr>")
+                else:    
+                    stringToDisplay.append(f"<tr><td><b>{prop}</b>:</td> <td align='right'>{(value * 100):.2f}%</td> </tr>")
             elif isinstance(value, str):
-                stringToDisplay.append(f"<tr><td>{prop}:</td> <td align='left'>{value}</td> </tr>")
+                stringToDisplay.append(f"<tr><td><b>{prop}</b>:</td> <td align='left'>{value}</td> </tr>")
             else:
-                stringToDisplay.append(f"<tr><td>{prop}:</td> <td align='left'>{str(value)}</td> </tr>")
+                stringToDisplay.append(f"<tr><td><b>{prop}</b>:</td> <td align='left'>{str(value)}</td> </tr>")
         stringToDisplay.append("</table></html>")
         self.displayTPP.setText("".join(stringToDisplay))
 
