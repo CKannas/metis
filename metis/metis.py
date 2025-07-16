@@ -37,6 +37,9 @@ class Metis(QtWidgets.QMainWindow):
         super(Metis, self).__init__()
         self.backend = Backend(settings_file, output_folder)
         self.setSize()  # set size of main window
+        # Allow window maximization
+        self.setWindowState(QtCore.Qt.WindowNoState)
+
         self.loglevels = []
 
         self.molWall = molwall.molwall()
@@ -48,7 +51,7 @@ class Metis(QtWidgets.QMainWindow):
 
     def setSize(self):
         self.setMinimumSize(1500, 800)
-        self.setMaximumSize(1920, 1080)
+        # self.setMaximumSize(1920, 1080)
 
     def setMainEditor(self):
         """
