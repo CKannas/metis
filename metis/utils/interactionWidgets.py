@@ -19,14 +19,29 @@ class evaluationWindow(QtWidgets.QWidget):
         self.layout = QtWidgets.QVBoxLayout()
         self.layout.setSpacing(0)
         self.layout.setContentsMargins(0, 0, 0, 0)
+
+        # Create scroll area for the entire evaluation window
+        scrollArea = QtWidgets.QScrollArea()
+        scrollArea.setWidgetResizable(True)
+        
+        # Create content widget
+        contentWidget = QtWidgets.QWidget()
+        contentLayout = QtWidgets.QVBoxLayout(contentWidget)
+
         self.TPPDispay = TPProfile(settings)
         self.uses_tab = settings["ui"]["tab"]["render"]
 
         self.evaluationWidget = stackedWidget(settings)
-        self.evaluationWidget.setMaximumSize(1000, 1000)
+        # self.evaluationWidget.setMaximumSize(1000, 1000)
 
-        self.layout.addWidget(self.TPPDispay)
-        self.layout.addWidget(self.evaluationWidget)
+        contentLayout.addWidget(self.TPPDispay)
+        contentLayout.addWidget(self.evaluationWidget)
+        
+        # Set content widget for scroll area
+        scrollArea.setWidget(contentWidget)
+
+        # Add scroll area to main layout
+        self.layout.addWidget(scrollArea)
         self.setLayout(self.layout)
 
     def mousePressEvent(self, event):

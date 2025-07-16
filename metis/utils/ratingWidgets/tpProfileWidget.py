@@ -7,20 +7,25 @@ class TPProfile(QtWidgets.QWidget):
 
         # Layout
         self.mainlayout = QtWidgets.QVBoxLayout()
+        self.mainlayout.setContentsMargins(5, 5, 5, 5)
 
         # Widgets
         introductionText = QtWidgets.QLabel()
         introductionText.setText(settings["introText"])
         introductionText.setWordWrap(True)
 
-        propertyList = QtWidgets.QLabel()
+        # ---- Property List Section ----
+        propertyList = QtWidgets.QTextEdit()
+        propertyList.setReadOnly(True)
         propertyList.setText(
             "<html><ul>"
             + "".join([f"<li>{name}</li>" for name in settings["propertyLabels"]])
             + "</ul></html>"
         )
 
-        self.displayTPP = QtWidgets.QLabel()
+        # ---- Display TPP Section ----
+        self.displayTPP = QtWidgets.QTextEdit()
+        self.displayTPP.setReadOnly(True)
         self.displayTPP.setText(
             "<html><ul>"
             + "".join([f"<li>{name}</li>" for name in settings["propertyLabels"]])
