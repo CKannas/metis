@@ -14,6 +14,7 @@ import shutil
 from pathlib import Path
 import warnings
 from typing import Tuple
+from metis import PKGDIR
 
 
 class evalDataFrame(pd.DataFrame):
@@ -192,17 +193,17 @@ def createResultsFolder(directory: str, debug: bool = False) -> str:
     Returns the original directory path if no new folder is created.
     """
 
-    if not os.path.exists(directory):
-        os.makedirs(directory)
+    if not Path(directory).exists():
+        Path(directory).mkdir(parents=True, exist_ok=False)
 
     elif debug == False:
         now = datetime.now()
         dt_string = now.strftime("%d%m%Y_%H:%M:%S")
-        os.makedirs(f"{directory}_{dt_string}")
+        Path(f"{directory}_{dt_string}").mkdir(parents=True, exist_ok=False)
         return f"{directory}_{dt_string}"
     else:
         shutil.rmtree(directory)
-        os.makedirs(directory)
+        Path(directory).mkdir(parents=True, exist_ok=False)
 
     return directory
 
@@ -222,7 +223,7 @@ def createRGBColorDict(settings):
 
 
 def select_counterfactual(originalSmiles, toKeep):
-    test = pd.read_csv("../data/scaffold_memory.csv")
+    test = pd.read_csv(Path(PKGDIR, "data", "scaffold_memory.csv"))
     filter_col = [col for col in test.columns if col.startswith("to_")]
     matching = test[(test[filter_col] == 1).sum(axis=1) == len(filter_col)]
     if matching.shape[0] == 0:

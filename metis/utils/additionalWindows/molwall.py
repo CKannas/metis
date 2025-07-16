@@ -1,10 +1,11 @@
+from pathlib import Path
 from PySide2.QtWidgets import QLabel, QPushButton, QScrollArea
 from PySide2.QtGui import QPixmap, QPalette, QColor
 from PySide2 import QtWidgets, QtCore
 from rdkit.Chem import Draw
 from rdkit.Chem import AllChem as Chem
 from typing import Dict, List
-import os, shutil
+import shutil
 from metis import PKGDIR
 
 
@@ -15,10 +16,10 @@ class molwall(QtWidgets.QMainWindow):
         super(molwall, self).__init__(parent)
         self.setMinimumSize(1300, 700)
         self.setMaximumSize(1300, 700)
-        self.cwd = f"{PKGDIR}/utils/temp_images/molImages/"
-        if os.path.exists(self.cwd):
+        self.cwd = Path(PKGDIR, "utils", "temp_images", "molImages")
+        if Path(self.cwd).exists():
             shutil.rmtree(self.cwd)
-        os.makedirs(self.cwd)
+        Path(self.cwd).mkdir(parents=True, exist_ok=False)
         self.image_paths = []
         self.molInfoDicts = []
         self.smilesDict = {0: {}}
@@ -58,8 +59,8 @@ class molwall(QtWidgets.QMainWindow):
         for i, smi in enumerate(smiles):
             self.smilesDict[self.iteration][smi] = {"molInfo": infos[i]}
             img = Draw.MolToImage(Chem.MolFromSmiles(smi), size=(240, 240), canvas=None)
-            img.save(f"{self.cwd}mol_{smi}.png")
-            self.smilesDict[self.iteration][smi]["imgPath"] = f"{self.cwd}mol_{smi}.png"
+            img.save(Path(self.cwd, f"mol_{smi}.png"))
+            self.smilesDict[self.iteration][smi]["imgPath"] = Path(self.cwd, f"mol_{smi}.png")
 
     def genBricks(self) -> None:
         """

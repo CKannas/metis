@@ -5,6 +5,7 @@ import pandas as pd
 from rdkit.Chem import AllChem as Chem
 import json
 import os
+from pathlib import Path
 from metis.utils.helper import get_random_string
 from metis.utils.data import extract_and_process_liabilities
 import time
@@ -54,7 +55,7 @@ class Worker(QRunnable):
 
 class DeNovoRunner:
     def __init__(self, de_novo_config):
-        self.cwd = f"{PKGDIR}/reinvent_connect"
+        self.cwd = Path(PKGDIR, "reinvent_connect")
         self.settings = de_novo_config
         self.ssh_settings = yaml.safe_load(open(self.settings.ssh_settings))
         self.slurm_path = self.ssh_settings["path_remote_folder"]
@@ -67,31 +68,29 @@ class DeNovoRunner:
 
     def gen_denovo_file(self, activity_label: str, human_component=None):
         file_contents = copy.deepcopy(self.og_json_contents)
-        if os.path.isfile(f"{self.cwd}/input_files/current_run/Agent.ckpt"):
+        if Path(self.cwd, "input_files", "current_run", "Agent.ckpt").is_file():    
             file_contents["parameters"]["reinforcement_learning"][
                 "agent"
-            ] = f"{self.slurm_path}/Agent.ckpt"
-            self.agent_path = f"{self.cwd}/input_files/current_run/Agent.ckpt"
+            ] = Path(self.slurm_path, "Agent.ckpt")
+            self.agent_path = Path(self.cwd, "input_files", "current_run", "Agent.ckpt")
         else:
             file_contents["parameters"]["reinforcement_learning"][
                 "agent"
-            ] = f"{self.slurm_path}/Agent_Initial.ckpt"
+            ] = Path(self.slurm_path, "Agent_Initial.ckpt")
 
         component_list = list()
         for component in file_contents["parameters"]["scoring_function"]["parameters"]:
             if self.settings.use_reward_model:
                 if component["name"] == activity_label:
-                    if os.path.isfile(f"{self.cwd}/input_files/current_run/Model.pkl"):
+                    if Path(self.cwd, "input_files", "current_run", "Model.pkl").is_file():
                         component["specific_parameters"][
                             "model_path"
-                        ] = f"{self.slurm_path}/Model.pkl"
-                        self.model_path = (
-                            f"{self.cwd}/input_files/current_run/Model.pkl"
-                        )
+                        ] = Path(self.slurm_path, "Model.pkl")
+                        self.model_path = Path(self.cwd, "input_files", "current_run", "Model.pkl")
                     else:
                         component["specific_parameters"][
                             "model_path"
-                        ] = f"{self.slurm_path}/Model_Initial.pkl"
+                        ] = Path(self.slurm_path, "Model_Initial.pkl")
             component_list.append(component)
 
         if human_component is not None:
@@ -104,14 +103,14 @@ class DeNovoRunner:
                     component_list.append(comp)
 
         file_contents["parameters"]["scoring_function"]["parameters"] = component_list
-        with open(f"{self.cwd}/input_files/current_run/new_run.json", "w") as outfile:
+        with Path(self.cwd,"input_files", "current_run", "new_run.json").open("w") as outfile:
             json.dump(file_contents, outfile, sort_keys=True, indent=4)
 
     def run(self, activity_label: str, output_path: str, human_component=None):
         self.gen_denovo_file(activity_label, human_component=human_component)
 
         generate_slurm_file(
-            f"{self.cwd}/input_files/current_run/new_run.slurm",
+            Path(self.cwd, "input_files", "current_run", "new_run.slurm"),
             self.ssh_settings["default_slurm"],
             self.slurm_path,
             run_name=self.run_name,
@@ -119,8 +118,8 @@ class DeNovoRunner:
 
         start_remote_run(
             self.ssh_settings["ssh_login"],
-            f"{self.cwd}/input_files/current_run/new_run.slurm",
-            f"{self.cwd}/input_files/current_run/new_run.json",
+            Path(self.cwd, "input_files", "current_run", "new_run.slurm"),
+            Path(self.cwd, "input_files", "current_run", "new_run.json"),
             self.slurm_path,
             self.model_path,
             self.agent_path,

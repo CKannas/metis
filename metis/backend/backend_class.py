@@ -13,7 +13,7 @@ from metis.backend import settings_validator
 
 from PySide2.QtCore import Qt, QThread, QThreadPool, Signal
 import os
-from os.path import join
+from pathlib import Path
 import yaml
 import pickle
 from metis.reinvent_connect import train_rf as trf
@@ -28,7 +28,7 @@ from metis import PKGDIR
 class Backend:
     def __init__(self, settings, results_folder: str):
         helper.clear_current_files(
-            f"{PKGDIR}/reinvent_connect/input_files/current_run/"
+            Path(PKGDIR, "reinvent_connect", "input_files", "current_run").as_posix()
         )
         self.loadFiles(settings)
         if self.settings.reward_model is not None:
@@ -44,7 +44,7 @@ class Backend:
 
     def loadFiles(self, settings):
 
-        self.designPath = f"{PKGDIR}/design/"
+        self.designPath = Path(PKGDIR, "design")
         self.settings = settings_validator.BaseConfig(**yaml.safe_load(open(settings)))
         self.load_settings(self.settings)
 
@@ -81,7 +81,7 @@ class Backend:
         )
         if initial == True:
             self.results_path = data.createResultsFolder(
-                join(results_folder, self.settings.data.run_name),
+                Path(results_folder, self.settings.data.run_name).as_posix(),
                 debug=self._debug,
             )
 
@@ -114,8 +114,8 @@ class Backend:
     def init_next_iteration(self):
         if self.settings.de_novo_model is not None:
             shutil.copy2(
-                f"{PKGDIR}/reinvent_connect/input_files/current_run/Agent.ckpt",
-                f"{self.results_path}/iteration_{self.iteration}/Agent.ckpt",
+                Path(PKGDIR, "reinvent_connect", "input_files", "current_run", "Agent.ckpt"),
+                Path(self.results_path, f"iteration_{self.iteration}", "Agent.ckpt"),
             )
         self.inner_iteration = 0
         self.setVariables(initial=False)
@@ -123,20 +123,19 @@ class Backend:
         self.next_iteration_signal.finished.emit()
 
     def clear_temp_images(self, files_only: bool = False):
-        self._temp_image_folder = f"{PKGDIR}/utils/temp_images/"
+        self._temp_image_folder = Path(PKGDIR, "utils", "temp_images")
 
-        if os.path.exists(self._temp_image_folder):
+        if self._temp_image_folder.exists():
             if files_only:
                 self.remove_files_only(self._temp_image_folder)
             else:
                 shutil.rmtree(self._temp_image_folder)
-                os.mkdir(self._temp_image_folder)
+                Path.mkdir(self._temp_image_folder)
 
     def remove_files_only(self, directory):
-        for root, dirs, files in os.walk(directory):
-            for file in files:
-                file_path = os.path.join(root, file)
-                os.remove(file_path)
+        for file_path in Path.iterdir(directory):
+            if file_path.is_file():
+                Path.unlink(file_path)
             break
 
     def save_final_dataset(self):
@@ -144,15 +143,15 @@ class Backend:
             self.df = pd.concat(self.df_list, axis=0, ignore_index=True).reset_index(
                 drop=True
             )
-        self._save_dataset(f"{self.results_path}/final_evaluation_data.csv")
-        if os.path.isfile(self.settings.data.path):
+        self._save_dataset(Path(self.results_path, "final_evaluation_data.csv"))
+        if Path(self.settings.data.path).is_file():
             shutil.copy2(
                 self.settings.data.path,
-                f"{self.results_path}/final_scaffold_memory.csv",
+                Path(self.results_path, "final_scaffold_memory.csv"),
             )
 
     def save_substructure_dict(self):
-        self.track_substructure.save_substruct(f"{self.results_path}/substructure.json")
+        self.track_substructure.save_substruct(Path(self.results_path, "substructure.json"))
 
     def update_current_mol(self, direction):
         self.currentMolIndex = (self.currentMolIndex + direction) % self.df.shape[0]
@@ -311,9 +310,9 @@ class Backend:
         self.df = self.df_list[0]
         if len(self.df_list) > 1:
             [self.df.custom_append(x) for x in self.df_list[1:]]
-        data.createResultsFolder(f"{self.results_path}/iteration_{self.iteration}")
+        data.createResultsFolder(Path(self.results_path, f"iteration_{self.iteration}"))
         self._save_dataset(
-            f"{self.results_path}/iteration_{self.iteration}/evaluation_data.csv"
+            Path(self.results_path, f"iteration_{self.iteration}", "evaluation_data.csv")
         )
         self._copyScaffoldMemory()
         dict_list = None
@@ -323,10 +322,10 @@ class Backend:
             self._saveResultsCSV(results_df)
             dict_list = self._createDictList(results_df)
             self.RFTrainer.save_model(
-                f"{PKGDIR}/reinvent_connect/input_files/current_run/Model.pkl"
+                Path(PKGDIR, "reinvent_connect", "input_files", "current_run", "Model.pkl")
             )
             self.RFTrainer.save_model(
-                f"{self.results_path}/iteration_{self.iteration}/Model.pkl"
+                Path(self.results_path, f"iteration_{self.iteration}", "Model.pkl")
             )
 
         user_scoring_function = self._getUserScoringFunction()
@@ -339,7 +338,7 @@ class Backend:
     def _copyScaffoldMemory(self):
         shutil.copy2(
             self.settings.data.path,
-            f"{self.results_path}/iteration_{self.iteration}/scaffold_memory.csv",
+            Path(self.results_path, f"iteration_{self.iteration}", "scaffold_memory.csv"),
         )
 
     def _concatResultsDF(self):
@@ -359,7 +358,7 @@ class Backend:
 
     def _saveResultsCSV(self, results_df):
         results_df.to_csv(
-            f"{self.results_path}/iteration_{self.iteration}/oracle_results.csv",
+            Path(self.results_path, f"iteration_{self.iteration}", "oracle_results.csv"),
             index=False,
         )
 

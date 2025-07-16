@@ -1,3 +1,4 @@
+from pathlib import Path
 from PySide2.QtWidgets import (
     QLabel,
 )
@@ -5,6 +6,7 @@ from PySide2.QtGui import QPixmap
 from PySide2 import QtWidgets, QtCore
 from rdkit.Chem import Draw
 from rdkit.Chem import AllChem as Chem
+from metis import PKGDIR
 
 
 class CounterfactualWindow(QtWidgets.QMainWindow):
@@ -19,7 +21,7 @@ class CounterfactualWindow(QtWidgets.QMainWindow):
         self.gen_mol_images()
         for i in range(len(self.smiles)):
             image = QLabel(self)
-            image.setPixmap(QPixmap(f"../data/molimage_{i}.png"))
+            image.setPixmap(QPixmap(Path(PKGDIR, "data", f"molimage_{i}.png")))
             self.globallayout.addWidget(image)
         self.center = QtWidgets.QWidget()
         self.center.setLayout(self.globallayout)
@@ -30,5 +32,5 @@ class CounterfactualWindow(QtWidgets.QMainWindow):
     def gen_mol_images(self):
         for i, x in enumerate(self.smiles):
             Draw.MolToFile(
-                Chem.MolFromSmiles(x), f"../data/molimage_{i}.png", size=(300, 300)
+                Chem.MolFromSmiles(x), Path(PKGDIR, "data", f"molimage_{i}.png"), size=(300, 300)
             )

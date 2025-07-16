@@ -8,6 +8,7 @@ import pickle
 from PySide2.QtCore import QByteArray
 from cairosvg import svg2png
 import os
+from pathlib import Path
 from typing import Dict, List
 from functools import partial
 from metis.utils.data import sample_training_data
@@ -84,7 +85,7 @@ def save_explanation_map(
 
     svg2png(
         bytestring=svg,
-        write_to=f"{PKGDIR}/utils/temp_images/{save_name if save_name is not None else 'output.png'}",
+        write_to=Path(PKGDIR, "utils", "temp_images", f"{save_name if save_name is not None else 'output.png'}"),
     )
 
 
@@ -118,7 +119,7 @@ def save_most_similar_active_map(
     )
 
     grid_img.save(
-        f"{PKGDIR}/utils/temp_images/{save_name if save_name is not None else 'grid_image.png'}"
+        Path(PKGDIR, "utils", "temp_images", f"{save_name if save_name is not None else 'grid_image.png'}")
     )
 
 
@@ -131,7 +132,7 @@ def set_image(
     ecfp_settings=None,
 ):
 
-    if not os.path.isfile(f"{image_folder_path}{image_type}{index}.png"):
+    if not Path(f"{image_folder_path}{image_type}{index}.png").is_file():
         if image_type == "mostSimilarActives":
             save_most_similar_active_map(
                 data_path,

@@ -1,3 +1,3 @@
-from os.path import dirname, join as joinpath
+from pathlib import Path
 
-PKGDIR = dirname(__file__)
+PKGDIR = Path(__file__).parent

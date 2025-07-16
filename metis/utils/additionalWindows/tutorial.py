@@ -1,3 +1,4 @@
+from pathlib import Path
 from PySide2.QtWidgets import (
     QLabel,
     QPushButton,
@@ -5,6 +6,7 @@ from PySide2.QtWidgets import (
 import time
 from PySide2.QtGui import QPixmap
 from PySide2 import QtWidgets, QtCore, QtGui
+from metis import PKGDIR
 
 
 class Second(QtWidgets.QMainWindow):
@@ -36,26 +38,26 @@ class Second(QtWidgets.QMainWindow):
         # svgWidget.setAlignment(QtCore.Qt.AlignCenter)
         self.currentMolIndex = 0
         self.pixmap = [
-            QPixmap("design/metis_eye_text.png").scaled(
+            QPixmap(Path(PKGDIR, "design", "metis_eye_text.png")).scaled(
                 800, 800, QtCore.Qt.KeepAspectRatio
             ),
-            QPixmap("design/drd2_examples.png"),
-            QPixmap("design/drd2_examples.png"),
-            QPixmap("design/global_like.png"),
-            QPixmap("design/properties.png"),
-            QPixmap("design/ugly_selection.png").scaled(
+            QPixmap(Path(PKGDIR, "design", "drd2_examples.png")),
+            QPixmap(Path(PKGDIR, "design", "drd2_examples.png")),
+            QPixmap(Path(PKGDIR, "design", "global_like.png")),
+            QPixmap(Path(PKGDIR, "design", "properties.png")),
+            QPixmap(Path(PKGDIR, "design", "ugly_selection.png")).scaled(
                 800, 800, QtCore.Qt.KeepAspectRatio
             ),
-            QPixmap("design/toxic_selection.png").scaled(
+            QPixmap(Path(PKGDIR, "design", "toxic_selection.png")).scaled(
                 800, 800, QtCore.Qt.KeepAspectRatio
             ),
-            QPixmap("design/other_selection.png").scaled(
+            QPixmap(Path(PKGDIR, "design", "other_selection.png")).scaled(
                 800, 800, QtCore.Qt.KeepAspectRatio
             ),
-            QPixmap("design/select_substructures.png").scaled(
+            QPixmap(Path(PKGDIR, "design", "select_substructures.png")).scaled(
                 600, 600, QtCore.Qt.KeepAspectRatio
             ),
-            QPixmap("design/navigation.png").scaled(
+            QPixmap(Path(PKGDIR, "design", "navigation.png")).scaled(
                 800, 800, QtCore.Qt.KeepAspectRatio
             ),
         ]

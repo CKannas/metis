@@ -5,6 +5,7 @@ from typing import List, Dict, Optional
 
 # Import required modules
 import sys, time, os, shutil
+from pathlib import Path
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 from PySide2 import QtCore, QtGui, QtWidgets, QtSvg
@@ -92,7 +93,7 @@ class Metis(QtWidgets.QMainWindow):
         """
 
         self.setWindowTitle("Metis")
-        self.setWindowIcon(QIcon(self.backend.designPath + "logo.png"))
+        self.setWindowIcon(QIcon(Path(self.backend.designPath, "logo.png").as_posix()))
         self.setMainLayout()  # responsible for holding molviewer and evaluation
         self.molCounter = interactionWidgets.molCounter(self.backend.numMols)
         self.init_navigationbar()
@@ -384,7 +385,7 @@ def launch(loglevel="WARNING"):
 
     args = parser.parse_args()
 
-    if not os.path.isfile(args.file):
+    if not Path(args.file).is_file():
         print(f"Settings not found or set: {args.file}")
         print()
         parser.print_help()
@@ -400,7 +401,7 @@ def launch(loglevel="WARNING"):
             loglevel=loglevel,
         )
 
-        stylesheet = helper.read_and_replace_css(f"{PKGDIR}/design/style.css", PKGDIR)
+        stylesheet = helper.read_and_replace_css(Path(PKGDIR, "design", "style.css").as_posix(), PKGDIR.as_posix())
         myApp.setStyleSheet(stylesheet)
         myApp.exec_()
 

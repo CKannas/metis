@@ -1,3 +1,4 @@
+from pathlib import Path
 from pydantic import BaseModel, Field, field_validator, validator
 from typing import Dict, List, Optional
 import re
@@ -13,14 +14,14 @@ class DataConfig(BaseModel):
 
     @field_validator("initial_path")
     def initial_path_validation(cls, v: str):
-        if v.split("/")[-1] == "scaffold_memory.csv":
+        if Path(v).name == "scaffold_memory.csv":
             raise ValueError('The initial data cannot be called "scaffold_memory.csv"')
         else:
             return v
 
     @field_validator("path")
     def path_validation(cls, v: str):
-        if v.split("/")[-1] != "scaffold_memory.csv":
+        if Path(v).name != "scaffold_memory.csv":
             raise ValueError(
                 'The path specified in "path" must end in "scaffold_memory.csv"'
             )
