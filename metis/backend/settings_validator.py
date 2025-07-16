@@ -1,5 +1,5 @@
 from pathlib import Path
-from pydantic import BaseModel, Field, field_validator, validator
+from pydantic import BaseModel, Field, field_validator
 from typing import Dict, List, Optional
 import re
 import warnings
@@ -73,7 +73,7 @@ class AdditionalWindowsConfig(BaseModel):
     path: Optional[str] = Field(default=None)
     ECFP: Optional[ECFPConfig] = Field(default=None)
 
-    @validator("path", always=True)
+    @field_validator("path", check_fields=True)
     def path_validator(cls, v, values):
         if (v is not None) and (values["render"] == False):
             warnings.warn(
@@ -145,7 +145,7 @@ class BaseConfig(BaseModel):
             v = None
         return v
 
-    @validator("de_novo_model")
+    @field_validator("de_novo_model")
     def de_novo_model_validator(cls, v):
         if (v.use_human_scoring_func == False) & (v.use_reward_model == False):
             warnings.warn(
